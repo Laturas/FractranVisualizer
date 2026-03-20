@@ -2,7 +2,7 @@
     #include "common.c"
 #endif
 
-
+#include "primes.h"
 
 typedef struct FractranVector {
     int length;
@@ -70,7 +70,87 @@ int fractran_program_get_length(String program_string) {
 }
 
 int fractran_program_get_vector_length(String program_string) {
+	typedef enum NumState {
+        NUMSTATE_NONE,
+        NUMSTATE_FIRST_NUMBER,
+        NUMSTATE_DIVISION_SYMBOL,
+        NUMSTATE_POST_DIVISION_SYMBOL,
+        NUMSTATE_SECOND_NUMBER,
+    } NumState;
 
+    int max_length = 0;
+    NumState current_state = NUMSTATE_NONE;
+
+    for (int i = 0; i < program_string.length; i++) {
+        switch (current_state) {
+            case NUMSTATE_NONE: {
+                if (IS_NUMERIC(program_string.str[i])) {
+					int value = atoi(&program_string.str[i]);
+					if (value < 1) {
+						return 0;
+					}
+
+					int largest_prime_index = -1;
+					for (int i = 0; (i < 255) && (value > 1); i++) {
+						while (value % primes[i] == 0) {
+							largest_prime_index = i;
+							value /= primes[i];
+						}
+					}
+
+					int new_length = largest_prime_index + 1;
+
+					max_length = (new_length > max_length) ? new_length : max_length;
+                    current_state = NUMSTATE_FIRST_NUMBER;
+					while (IS_NUMERIC(program_string.str[i])) {
+						i++;
+					}
+					i--;
+                }
+            } break;
+            case NUMSTATE_FIRST_NUMBER: {
+                if (!IS_NUMERIC(program_string.str[i])) {
+                    current_state = (program_string.str[i] == '/') ? NUMSTATE_POST_DIVISION_SYMBOL : NUMSTATE_DIVISION_SYMBOL;
+                }
+            } break;
+            case NUMSTATE_DIVISION_SYMBOL: {
+                if ((program_string.str[i]) == '/') {
+                    current_state = NUMSTATE_POST_DIVISION_SYMBOL;
+                }
+            } break;
+            case NUMSTATE_POST_DIVISION_SYMBOL: {
+                if (IS_NUMERIC(program_string.str[i])) {
+					int value = atoi(&program_string.str[i]);
+					if (value < 1) {
+						return 0;
+					}
+
+					int largest_prime_index = -1;
+					for (int i = 0; (i < 255) && (value > 1); i++) {
+						while (value % primes[i] == 0) {
+							largest_prime_index = i;
+							value /= primes[i];
+						}
+					}
+
+					int new_length = largest_prime_index + 1;
+
+					max_length = (new_length > max_length) ? new_length : max_length;
+                    current_state = NUMSTATE_SECOND_NUMBER;
+					while (IS_NUMERIC(program_string.str[i])) {
+						i++;
+					}
+					i--;
+                }
+            } break;
+            case NUMSTATE_SECOND_NUMBER: {
+                if (!IS_NUMERIC(program_string.str[i])) {
+                    current_state = NUMSTATE_NONE;
+                }
+            } break;
+        }
+    }
+    return max_length;
 }
 
 /**
@@ -87,8 +167,71 @@ FractranProgram fractran_program_new(Arena* fractran_arena, String program_strin
 
     int saved = arena_save(fractran_arena);
     program.vectors = arena_alloc(fractran_arena, sizeof(*program.vectors) * program_len);
+	int vector_length = fractran_program_get_vector_length(program_string);
+	program.vector_length = vector_length;
+
+	typedef enum NumState {
+        NUMSTATE_NONE,
+        NUMSTATE_FIRST_NUMBER,
+        NUMSTATE_DIVISION_SYMBOL,
+        NUMSTATE_POST_DIVISION_SYMBOL,
+        NUMSTATE_SECOND_NUMBER,
+    } NumState;
+
+	NumState current_state = NUMSTATE_NONE;
+	int current_vector = 0;
+	int j = 0;
+
+	for (int i = 0; i < program_len; i++) {
+		program.vectors[i] = (FractranVector) {
+			.length = vector_length,
+			.values = arena_alloc(fractran_arena, sizeof(*program.vectors[i].values) * vector_length)
+		};
+		ASSERT(j < program_string.length);
+		while (!IS_NUMERIC(program_string.str[j])) {
+			j++;
+			ASSERT(j < program_string.length);
+		}
+
+		ASSERT(j < program_string.length);
+
+		int first_int = atoi(&program_string.str[j]);
+
+		for (int k = 0; (k < vector_length) && (first_int > 1); k++) {
+			while (first_int % primes[k] == 0) {
+				program.vectors[i].values[k] += 1;
+				first_int /= primes[k];
+			}
+		}
+		ASSERT(first_int == 1);
+
+		while (IS_NUMERIC(program_string.str[j])) {
+			j++;
+			ASSERT(j < program_string.length);
+		}
+
+		ASSERT(j < program_string.length);
+		while (!IS_NUMERIC(program_string.str[j])) {
+			j++;
+			ASSERT(j < program_string.length);
+		}
 
 
+		int second_int = atoi(&program_string.str[j]);
+
+		for (int k = 0; (k < vector_length) && (second_int > 1); k++) {
+			while (second_int % primes[k] == 0) {
+				program.vectors[i].values[k] -= 1;
+				second_int /= primes[k];
+			}
+		}
+		ASSERT(second_int == 1);
+
+		while (IS_NUMERIC(program_string.str[j])) {
+			j++;
+		}
+	}
     
     return program;
 }
+
