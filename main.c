@@ -47,30 +47,38 @@ void create_fractran_spacetime_diagram(String machine, char* file_name, int step
 
     /* We now know the width and height */
     int width = max_width;
-    int height = steps;
+    // int height = steps;
+    int steps_per_row = steps / img_height;
+    // int steps_per_column = max_width / img_width;
 
 	int* data = malloc(sizeof(*data) * max_width * steps);
     ASSERT(data != NULL);
     FractranVector current_step = fractran_init_vector(&scratch_arena, program.vector_length); /* Reset */
 
-    /* We now run the program again, this time to fill in the image. */
-    for (int y = 0; y < steps; y++) {
-        int x = 0;
-        for (int i = 0; i < current_step.length; i++) {
-            int stop_at = x + current_step.values[i];
-            for (; x < stop_at; x++) {
-                data[(y * width) + x] = colors[i];
+    int row_step = 0;
+
+    int y = 0;
+
+    for (int step = 0; step < steps; step++) {
+        if (step % steps_per_row == 0) {
+            int x = 0;
+            for (int i = 0; i < current_step.length; i++) {
+                int stop_at = x + current_step.values[i];
+                for (; x < stop_at; x++) {
+                    data[(y * width) + x] = colors[i];
+                }
             }
-        }
-        for (; x < width; x++) {
-            data[(y * width) + x] = 0xff000000;
+            for (; x < width; x++) {
+                data[(y * width) + x] = 0xff000000;
+            }
+            y++;
         }
         fractran_program_step(program, current_step, &current_step);
     }
 
     file_name = (file_name == NULL) ? "Fractran Spactime Diagram.png" : file_name;
 
-    stbi_write_png(file_name, width, height, 4, data, sizeof(*data) * width);
+    stbi_write_png(file_name, width, img_height, 4, data, sizeof(*data) * width);
 
     free(data);
     arena_free(&scratch_arena);
