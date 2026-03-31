@@ -235,3 +235,27 @@ FractranProgram fractran_program_new(Arena* fractran_arena, String program_strin
     return program;
 }
 
+
+bool fractran_program_step(FractranProgram program, FractranVector input_vector, FractranVector* output_vector) {
+    ASSERT(output_vector != NULL);
+    ASSERT(input_vector.length == program.vector_length);
+
+    int rule = 0;
+    for (rule = 0; rule < program.vector_count; rule++) {
+        bool is_valid = true;
+        for (int i = 0; i < program.vector_length; i++) {
+            if (program.vectors[rule].values[i] < 0 && input_vector.values[i] + program.vectors[rule].values[i] < 0) {
+                is_valid = false;
+                break;
+            }
+        }
+        if (is_valid) { break; }
+    }
+    if (rule >= program.vector_count) { return true; } /* Machine is already halted */
+
+    for (int i = 0; i < program.vector_length; i++) {
+        output_vector->values[i] = input_vector.values[i] + program.vectors[rule].values[i];
+    }
+
+    return false;
+}
