@@ -423,6 +423,76 @@ bool string_ends_with(String string, String ends_with) {
 	return true;
 }
 
+bool string_starts_with(String string, String starts_with) {
+	if (starts_with.length > string.length) { return false; }
+
+	for (int i = 0; i < starts_with.length; i++) {
+		if (string.str[i] != starts_with.str[i]) {
+			return false;
+		}
+	}
+	return true;
+}
+
+#define CHAR_IS_WHITESPACE(c) (((c) == ' ') || ((c) == '\n') || ((c) == '\r') || ((c) == '\t'))
+#define CHAR_IS_NUMERIC(c) (('0' <= (c)) && ((c) <= '9'))
+#ifndef INT_MAX
+	#include <limits.h>
+#endif
+
+/* Returns 0 on failure. This is not a function that can validate that it's a valid number. Use string_is_numeric for that */
+int string_to_int(String string) {
+	if (string.str == NULL) goto TO_INT_EXIT;
+	int value = 0;
+	int sign = 1; /* Positive */
+
+	int i = 0;
+	while (i < string.length && CHAR_IS_WHITESPACE(string.str[i])) {
+		i++;
+	}
+
+	if (i < string.length && string.str[i] == '-') {
+		sign *= -1;
+		i++;
+	} else if (i < string.length && string.str[i] == '+') {
+		sign = 1; /* no-op */
+		i++;
+	}
+
+	while (i < string.length && CHAR_IS_NUMERIC(string.str[i])) {
+		/* Signed int overflow is UB */
+		if (INT_MAX / 10 < value) goto TO_INT_EXIT;
+		value *= 10;
+		value += string.str[i] - '0';
+		i++;
+	}
+
+TO_INT_EXIT:
+	value *= sign;
+	return value;
+}
+
+bool string_is_numeric(String string) {
+	if (string.str == NULL) return false;
+
+	int i = 0;
+	while (i < string.length && CHAR_IS_WHITESPACE(string.str[i])) {
+		i++;
+	}
+
+	if (i < string.length && string.str[i] == '-') {
+		i++;
+	} else if (i < string.length && string.str[i] == '+') {
+		i++;
+	}
+
+	while (i < string.length) {
+		if (!CHAR_IS_NUMERIC(string.str[i])) return false;
+		i++;
+	}
+	return true;
+}
+
 typedef struct StringArray {
 	String* strings;
 	int len;

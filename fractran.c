@@ -235,6 +235,23 @@ FractranProgram fractran_program_new(Arena* fractran_arena, String program_strin
     return program;
 }
 
+/**
+* Returns a fractran vector of the given length useable for starting a run from blank (first element is 1, the rest are 0)
+*/
+FractranVector fractran_init_vector(Arena* fractran_arena, int length) {
+    int* values = arena_alloc(fractran_arena, length * sizeof(*values));
+
+    /* Optimized to a memcpy */
+    for (int i = 0; i < length; i++) {
+        values[i] = 0;
+    }
+    values[0] = 1;
+
+    return (FractranVector) {
+        .length = length,
+        .values = values
+    };
+}
 
 bool fractran_program_step(FractranProgram program, FractranVector input_vector, FractranVector* output_vector) {
     ASSERT(output_vector != NULL);
