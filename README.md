@@ -3,7 +3,7 @@ This is a tool built for visualizing fractran programs. Each color corresponds t
 
 It's meant to help visualize the execution of this rather esoteric turing complete system.
 
-~[Image](/Example Results/size22_cryptid.png)
+~[/Example Results/size22_cryptid.png](Example image)
 
 ## Compiling
 To compile, just compile main.c with your C compiler of choice. There are no external dependencies.
