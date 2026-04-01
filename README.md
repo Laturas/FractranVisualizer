@@ -3,8 +3,6 @@ This is a tool built for visualizing fractran programs. Each color corresponds t
 
 It's meant to help visualize the execution of this rather esoteric turing complete system.
 
-![/Example Results/size22_cryptid.png](Example image)
-
 ## Compiling
 To compile, just compile main.c with your C compiler of choice. There are no external dependencies.
 
@@ -16,6 +14,7 @@ Run the executable from command line with the following flags:
 - `-width` and `-height` to specify image dimensions.
 - `-s` To specify how many steps to run the fractran program.
 - `-o` To specify an output file.
+- A fractran program, specified as a comma separated list of fractions. All other styling is ignored (bad practice ik ik ik).
 
 As an example of these in action, this is the command used to generate one of the example images:
 
@@ -28,3 +27,6 @@ Feel free to make a pull request! Though I'm busy and I can't guarantee I'll be 
 Yes! You may use it for whatever you want. Just be sure to credit :)
 
 Also let me know because I love seeing how my stuff gets used!
+
+## Are there bugs?
+Probably. Some things may not be programmed ideally either. From my testing it produces correct results but I wouldn't rely on it for anything mathematically rigorous.
