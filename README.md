@@ -1,5 +1,9 @@
 # Katelyn's Fractran Visualizer
-This is a tool built for visualizing fractran programs.
+This is a tool built for visualizing fractran programs. Each color corresponds to a prime factor, and the width of the color at each step indicates how many of that factor are in the current term.
+
+It's meant to help visualize the execution of this rather esoteric turing complete system.
+
+~[Image](/Example Results/size22_cryptid.png)
 
 ## Compiling
 To compile, just compile main.c with your C compiler of choice. There are no external dependencies.
@@ -14,6 +18,7 @@ Run the executable from command line with the following flags:
 - `-o` To specify an output file.
 
 As an example of these in action, this is the command used to generate one of the example images:
+
 `./fractran_visualizer.exe '[7/15, 22/3, 6/77, 5/2, 9/5]' -s 800 -width 256 -height 800 -o bbf20_champ.png`
 
 ## Contributing
