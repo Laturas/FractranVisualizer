@@ -36,6 +36,7 @@ void create_fractran_spacetime_diagram(String machine, char* file_name, int step
     FractranProgram program = fractran_program_new(&scratch_arena, machine);
     if (program.vector_length > 11) {
         fprintf(stderr, "ERROR: Fractran Visualizer currently only supports up to 11 colors (highest prime = 31).\n");
+        return;
     }
     FractranVector vec = fractran_init_vector(&scratch_arena, program.vector_length);
 
@@ -51,7 +52,6 @@ void create_fractran_spacetime_diagram(String machine, char* file_name, int step
     }
 
     /* We now know the width and height */
-    // int height = steps;
     int steps_per_row = (steps + img_height - 1) / img_height;
     int steps_per_column = (max_width + img_width - 1) / img_width;
     ASSERT(steps_per_column > 0);
